@@ -22,15 +22,27 @@ public class User {
         this.email = email;
     }
 
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
-    public void setId(Long id) { this.id = id; }
+    public String getName() {
+        return name;
+    }
 
-    public String getName() { return name; }
+    public String getEmail() {
+        return email;
+    }
 
-    public void setName(String name) { this.name = name; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getEmail() { return email; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public void setEmail(String email) { this.email = email; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

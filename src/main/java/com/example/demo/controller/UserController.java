@@ -6,42 +6,47 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "*")
 public class UserController {
 
-    private final UserRepository repo;
+    private final UserRepository userRepository;
 
-    public UserController(UserRepository repo) {
-        this.repo = repo;
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
+    // CREATE
     @PostMapping
-    public User create(@RequestBody User user) {
-        return repo.save(user);
+    public User createUser(@RequestBody User user) {
+        return userRepository.save(user);
     }
 
+    // READ ALL
     @GetMapping
-    public List<User> getAll() {
-        return repo.findAll();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
+    // READ ONE
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id) {
-        return repo.findById(id).orElseThrow();
+    public User getUserById(@PathVariable Long id) {
+        return userRepository.findById(id).orElseThrow();
     }
 
+    // UPDATE
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @RequestBody User user) {
-        User existing = repo.findById(id).orElseThrow();
-        existing.setName(user.getName());
-        existing.setEmail(user.getEmail());
-        return repo.save(existing);
+    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+        User user = userRepository.findById(id).orElseThrow();
+        user.setName(updatedUser.getName());
+        user.setEmail(updatedUser.getEmail());
+        return userRepository.save(user);
     }
 
+    // DELETE
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        repo.deleteById(id);
+    public void deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
     }
 }
