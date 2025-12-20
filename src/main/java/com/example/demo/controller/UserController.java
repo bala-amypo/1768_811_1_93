@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -16,32 +17,29 @@ public class UserController {
         this.repo = repo;
     }
 
-    // CREATE
     @PostMapping
     public User create(@RequestBody User user) {
         return repo.save(user);
     }
 
-    // READ ALL
     @GetMapping
     public List<User> getAll() {
         return repo.findAll();
     }
 
-    // READ BY ID
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id) {
-        return repo.findById(id).orElse(null);
+        return repo.findById(id).orElseThrow();
     }
 
-    // UPDATE
     @PutMapping("/{id}")
     public User update(@PathVariable Long id, @RequestBody User user) {
-        user.setId(id);
-        return repo.save(user);
+        User existing = repo.findById(id).orElseThrow();
+        existing.setName(user.getName());
+        existing.setEmail(user.getEmail());
+        return repo.save(existing);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         repo.deleteById(id);
