@@ -10,7 +10,5 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI();
-        new Server().url("http://localhost:9001")
-
     }
 }
