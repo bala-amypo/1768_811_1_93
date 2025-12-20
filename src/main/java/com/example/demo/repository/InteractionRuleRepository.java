@@ -9,6 +9,9 @@ import java.util.Optional;
 public interface InteractionRuleRepository
         extends JpaRepository<InteractionRule, Long> {
 
-    List<InteractionRule> findByIngredientId(Long ingredientId);
-    Optional<InteractionRule> findRuleBetweenIngredients(Long id1, Long id2);
+    // Find rules where ingredientA = id OR ingredientB = id
+    List<InteractionRule> findByIngredientA_IdOrIngredientB_Id(Long ingredientAId, Long ingredientBId);
+
+    // Find rule between two specific ingredients
+    Optional<InteractionRule> findByIngredientA_IdAndIngredientB_Id(Long ingredientAId, Long ingredientBId);
 }
