@@ -8,45 +8,40 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserRepository repo;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserRepository repo) {
+        this.repo = repo;
     }
 
-    // CREATE
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public User create(@RequestBody User user) {
+        return repo.save(user);
     }
 
-    // READ ALL
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<User> getAll() {
+        return repo.findAll();
     }
 
-    // READ ONE
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userRepository.findById(id).orElseThrow();
+    public User getById(@PathVariable Long id) {
+        return repo.findById(id).orElseThrow();
     }
 
-    // UPDATE
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        User user = userRepository.findById(id).orElseThrow();
-        user.setName(updatedUser.getName());
-        user.setEmail(updatedUser.getEmail());
-        return userRepository.save(user);
+    public User update(@PathVariable Long id, @RequestBody User user) {
+        User existing = repo.findById(id).orElseThrow();
+        existing.setName(user.getName());
+        existing.setEmail(user.getEmail());
+        return repo.save(existing);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userRepository.deleteById(id);
+    public void delete(@PathVariable Long id) {
+        repo.deleteById(id);
     }
 }

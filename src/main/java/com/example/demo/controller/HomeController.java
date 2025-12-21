@@ -1,13 +1,13 @@
 package com.example.demo.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin
 public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "Backend is running successfully 🚀";
+        return "Application is running";
     }
 }
