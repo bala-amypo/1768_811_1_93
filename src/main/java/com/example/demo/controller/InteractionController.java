@@ -13,7 +13,9 @@ public class InteractionController {
     private int counter = 1;
 
     @PostMapping("/check")
-    public Map<String, Object> checkInteraction(@RequestBody Map<Stringi<Map<String, Object>> body) {
+    public Map<String, Object> checkInteraction(
+            @RequestBody Map<String, Object> body) {
+
         Map<String, Object> result = new HashMap<>();
         result.put("id", counter);
         result.put("status", "No severe interaction found");
@@ -27,6 +29,9 @@ public class InteractionController {
 
     @GetMapping("/result/{id}")
     public Map<String, Object> getResult(@PathVariable int id) {
-        return results.getOrDefault(id, Map.of("error", "Result not found"));
+        return results.getOrDefault(
+                id,
+                Map.of("error", "Result not found")
+        );
     }
 }
