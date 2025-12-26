@@ -1,13 +1,9 @@
-package com.example.demo.model;
-
-import jakarta.persistence.*;
-
 @Entity
-@Table(name = "interaction_rules")
+@Table(name = "interaction_rules",
+       uniqueConstraints = @UniqueConstraint(columnNames = {"ingredientA_id","ingredientB_id"}))
 public class InteractionRule {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -21,11 +17,8 @@ public class InteractionRule {
 
     public InteractionRule() {}
 
-    public InteractionRule(ActiveIngredient a, ActiveIngredient b, String severity, String description) {
-        this.ingredientA = a;
-        this.ingredientB = b;
-        this.severity = severity;
-        this.description = description;
+    public InteractionRule(ActiveIngredient a, ActiveIngredient b, String s, String d) {
+        ingredientA = a; ingredientB = b; severity = s; description = d;
     }
 
     // getters & setters

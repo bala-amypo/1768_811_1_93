@@ -1,14 +1,8 @@
-package com.example.demo.model;
-
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "interaction_results")
+@Table(name = "interaction_check_results")
 public class InteractionCheckResult {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String medications;
@@ -19,15 +13,15 @@ public class InteractionCheckResult {
     private LocalDateTime checkedAt;
 
     @PrePersist
-    void onCreate() {
+    public void onCreate() {
         checkedAt = LocalDateTime.now();
     }
 
     public InteractionCheckResult() {}
 
-    public InteractionCheckResult(String meds, String interactions) {
-        this.medications = meds;
-        this.interactions = interactions;
+    public InteractionCheckResult(String meds, String inter) {
+        medications = meds;
+        interactions = inter;
     }
 
     // getters & setters

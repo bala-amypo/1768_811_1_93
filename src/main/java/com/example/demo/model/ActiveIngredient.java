@@ -1,13 +1,8 @@
-package com.example.demo.model;
-
-import jakarta.persistence.*;
-
 @Entity
 @Table(name = "active_ingredients")
 public class ActiveIngredient {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
