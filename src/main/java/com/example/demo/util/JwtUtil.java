@@ -2,47 +2,54 @@ package com.example.demo.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "secret123";
+    // ⚠️ Must be at least 256 bits for HS256
+    private final Key key =
+            Keys.hmacShaKeyFor(
+                    "mysecretkeymysecretkeymysecretkey123".getBytes()
+            );
 
-    public String generateToken(Long userId, String email, String role) {
+    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
+
+    // ✅ THIS IS THE METHOD YOUR AuthController USES
+    public String generateToken(Long id, String email, String role) {
+
         return Jwts.builder()
                 .setSubject(email)
-                .claim("userId", userId)
+                .claim("id", id)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public boolean validateToken(String token, UserDetails user) {
-        return extractUsername(token).equals(user.getUsername());
-    }
-
+    // Used by JwtAuthenticationFilter
     public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+        return getClaims(token).getSubject();
     }
 
-    public Long extractUserId(String token) {
-        return extractAllClaims(token).get("userId", Long.class);
+    public boolean validateToken(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {
+        String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    public String extractRole(String token) {
-        return extractAllClaims(token).get("role", String.class);
+    private boolean isTokenExpired(String token) {
+        return getClaims(token).getExpiration().before(new Date());
     }
 
-    private Claims extractAllClaims(String token) {
+    private Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET.getBytes())
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
