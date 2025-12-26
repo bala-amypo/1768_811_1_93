@@ -29,19 +29,33 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
+            // Disable CSRF
             .csrf(csrf -> csrf.disable())
+
+            // Stateless session (JWT)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+
+            // Allow required endpoints
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/auth/**",
                     "/swagger-ui/**",
-                    "/v3/api-docs/**"
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**",
+                    "/hello-servlet",
+                    "/h2-console/**"
                 ).permitAll()
                 .anyRequest().authenticated()
+            )
+
+            // Needed for H2 console
+            .headers(headers ->
+                headers.frameOptions(frame -> frame.disable())
             );
 
+        // JWT filter
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
