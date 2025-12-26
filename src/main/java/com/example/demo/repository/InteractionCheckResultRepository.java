@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InteractionCheckResultRepository
         extends JpaRepository<InteractionCheckResult, Long> {
+    // standard CRUD only
 }
