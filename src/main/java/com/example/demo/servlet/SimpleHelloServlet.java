@@ -1,4 +1,3 @@
-// com/example/demo/servlet/SimpleHelloServlet.java
 package com.example.demo.servlet;
 
 import jakarta.servlet.http.HttpServlet;
@@ -11,9 +10,11 @@ import java.io.IOException;
 public class SimpleHelloServlet extends HttpServlet {
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setStatus(HttpServletResponse.SC_OK);
-        resp.setContentType("text/plain");
-        resp.getWriter().write("Hello form Simple Hello Servlet");
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("text/plain");
+        response.getWriter().write("Hello form Simple Hello Servlet");
     }
 }
