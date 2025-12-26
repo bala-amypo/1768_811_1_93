@@ -1,27 +1,15 @@
-@Service
-public class CatalogServiceImpl implements CatalogService {
+package com.example.demo.service;
 
-    private final ActiveIngredientRepository ingredientRepo;
-    private final MedicationRepository medicationRepo;
+import com.example.demo.model.ActiveIngredient;
+import com.example.demo.model.Medication;
 
-    public CatalogServiceImpl(ActiveIngredientRepository i, MedicationRepository m) {
-        ingredientRepo = i;
-        medicationRepo = m;
-    }
+import java.util.List;
 
-    public ActiveIngredient addIngredient(ActiveIngredient ing) {
-        if (ingredientRepo.existsByName(ing.getName()))
-            throw new IllegalArgumentException("Ingredient exists");
-        return ingredientRepo.save(ing);
-    }
+public interface CatalogService {
 
-    public Medication addMedication(Medication med) {
-        if (med.getIngredients().isEmpty())
-            throw new IllegalArgumentException("Medication needs ingredient");
-        return medicationRepo.save(med);
-    }
+    ActiveIngredient addIngredient(ActiveIngredient ingredient);
 
-    public List<Medication> getAllMedications() {
-        return medicationRepo.findAll();
-    }
+    Medication addMedication(Medication medication);
+
+    List<Medication> getAllMedications();
 }
