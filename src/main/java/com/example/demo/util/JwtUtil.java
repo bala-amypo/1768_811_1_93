@@ -1,5 +1,12 @@
-// util/JwtUtil.java
 package com.example.demo.util;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 @Component
 public class JwtUtil {
@@ -12,7 +19,7 @@ public class JwtUtil {
                 .claim("userId", userId)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis()+86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(Keys.hmacShaKeyFor(SECRET.getBytes()))
                 .compact();
     }
@@ -22,18 +29,18 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        return extractAll(token).getSubject();
+        return extractAllClaims(token).getSubject();
     }
 
     public Long extractUserId(String token) {
-        return extractAll(token).get("userId", Long.class);
+        return extractAllClaims(token).get("userId", Long.class);
     }
 
     public String extractRole(String token) {
-        return extractAll(token).get("role", String.class);
+        return extractAllClaims(token).get("role", String.class);
     }
 
-    private Claims extractAll(String token) {
+    private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET.getBytes())
                 .build()
