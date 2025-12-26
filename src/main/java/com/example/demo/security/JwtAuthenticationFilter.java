@@ -31,14 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String uri = request.getRequestURI();
 
-        // ✅ SKIP JWT CHECK FOR PUBLIC ENDPOINTS
-        if (path.startsWith("/auth/")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")
-                || path.equals("/hello-servlet")
-                || path.startsWith("/h2-console")) {
+        // ✅ SKIP JWT FOR PUBLIC ENDPOINTS (IMPORTANT)
+        if (uri.contains("/auth/")
+                || uri.contains("/swagger-ui")
+                || uri.contains("/v3/api-docs")
+                || uri.contains("/hello-servlet")
+                || uri.contains("/h2-console")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -64,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             .setAuthentication(auth);
                 }
             } catch (Exception e) {
-                // invalid token → ignore and continue
+                // invalid token → ignore
             }
         }
 
