@@ -26,45 +26,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/auth")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/h2-console");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String uri = request.getRequestURI();
-
-        // ✅ SKIP JWT FOR PUBLIC ENDPOINTS (IMPORTANT)
-        if (uri.contains("/auth/")
-                || uri.contains("/swagger-ui")
-                || uri.contains("/v3/api-docs")
-                || uri.contains("/hello-servlet")
-                || uri.contains("/h2-console")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
+            String email = jwtUtil.extractUsername(token);
 
-            try {
-                String email = jwtUtil.extractUsername(token);
+            UserDetails user =
+                    userDetailsService.loadUserByUsername(email);
 
-                UserDetails user =
-                        userDetailsService.loadUserByUsername(email);
+            if (jwtUtil.validateToken(token, user)) {
+                UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(
+                                user, null, user.getAuthorities());
 
-                if (jwtUtil.validateToken(token, user)) {
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(
-                                    user, null, user.getAuthorities());
-
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(auth);
-                }
-            } catch (Exception e) {
-                // invalid token → ignore
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
 
