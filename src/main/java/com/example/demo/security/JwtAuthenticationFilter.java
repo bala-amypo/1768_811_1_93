@@ -31,21 +31,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getServletPath();
+
+        // ✅ SKIP JWT CHECK FOR PUBLIC ENDPOINTS
+        if (path.startsWith("/auth/")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.equals("/hello-servlet")
+                || path.startsWith("/h2-console")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-            String email = jwtUtil.extractUsername(token);
 
-            UserDetails user =
-                    userDetailsService.loadUserByUsername(email);
+            try {
+                String email = jwtUtil.extractUsername(token);
 
-            if (jwtUtil.validateToken(token, user)) {
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(
-                                user, null, user.getAuthorities());
+                UserDetails user =
+                        userDetailsService.loadUserByUsername(email);
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                if (jwtUtil.validateToken(token, user)) {
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    user, null, user.getAuthorities());
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(auth);
+                }
+            } catch (Exception e) {
+                // invalid token → ignore and continue
             }
         }
 
