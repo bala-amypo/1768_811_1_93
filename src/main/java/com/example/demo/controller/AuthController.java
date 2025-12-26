@@ -1,13 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.dto.LoginRequest;
 import com.example.demo.util.JwtUtil;
-
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,37 +21,36 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
-    public AuthController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager,
-                          JwtUtil jwtUtil) {
+    public AuthController(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtUtil jwtUtil
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
 
-    // ✅ REGISTER
+    // REGISTER
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
-
+    public User register(@RequestBody User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User savedUser = userRepository.save(user);
-
-        return ResponseEntity.ok(savedUser);
+        return userRepository.save(user);
     }
 
-    // ✅ LOGIN
+    // LOGIN
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(
-            @RequestBody LoginRequest request) {
+    public Map<String, String> login(@RequestBody LoginRequest request) {
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.getEmail(),
+                                request.getPassword()
+                        )
+                );
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -63,6 +61,6 @@ public class AuthController {
                 user.getRole()
         );
 
-        return ResponseEntity.ok(Map.of("token", token));
+        return Map.of("token", token);
     }
 }
