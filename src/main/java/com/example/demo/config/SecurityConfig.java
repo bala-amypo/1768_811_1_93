@@ -1,9 +1,11 @@
 package com.example.demo.config;
 
 import com.example.demo.security.JwtAuthenticationFilter;
+import com.example.demo.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,24 +18,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final CustomUserDetailsService userDetailsService;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtFilter,
+            CustomUserDetailsService userDetailsService
+    ) {
         this.jwtFilter = jwtFilter;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            // ❌ Disable CSRF (required for REST APIs)
             .csrf(csrf -> csrf.disable())
 
-            // ❌ Disable session (JWT = stateless)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
 
-            // ✅ Explicitly allow ONLY these public endpoints
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/auth/register",
@@ -47,15 +51,25 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
 
-            // ✅ Required for H2 console
             .headers(headers ->
                 headers.frameOptions(frame -> frame.disable())
-            );
+            )
 
-        // ✅ JWT filter
+            // 🔴 THIS IS THE MISSING LINE
+            .authenticationProvider(authenticationProvider());
+
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // 🔴 THIS BEAN WAS MISSING
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
     @Bean
