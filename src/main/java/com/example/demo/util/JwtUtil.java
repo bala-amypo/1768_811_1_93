@@ -2,6 +2,7 @@ package com.example.demo.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -12,11 +13,13 @@ public class JwtUtil {
 
     private static final String SECRET =
             "mysecretkeymysecretkeymysecretkeymysecretkey";
-    private static final long EXPIRATION = 1000 * 60 * 60 * 10; // 10 hrs
+    private static final long EXPIRATION = 1000 * 60 * 60 * 10; // 10 hours
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    // ✅ REQUIRED BY TESTS
+    // ============================
+    // TOKEN GENERATION
+    // ============================
     public String generateToken(String email, Long userId, String role) {
         return Jwts.builder()
                 .setSubject(email)
@@ -28,30 +31,46 @@ public class JwtUtil {
                 .compact();
     }
 
+    // ============================
+    // EXTRACTION METHODS
+    // ============================
     public String extractUsername(String token) {
         return getClaims(token).getSubject();
     }
 
-    // ✅ REQUIRED BY TESTS
     public Long extractUserId(String token) {
         return getClaims(token).get("id", Long.class);
     }
 
-    // ✅ REQUIRED BY TESTS
     public String extractRole(String token) {
         return getClaims(token).get("role", String.class);
     }
 
-    // ✅ REQUIRED SIGNATURE
+    // ============================
+    // VALIDATION (BOTH REQUIRED)
+    // ============================
     public boolean validateToken(String token) {
         try {
             getClaims(token);
             return true;
-        } catch (JwtException e) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
+    public boolean validateToken(String token, UserDetails userDetails) {
+        try {
+            String username = extractUsername(token);
+            return username.equals(userDetails.getUsername())
+                    && validateToken(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // ============================
+    // INTERNAL
+    // ============================
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
