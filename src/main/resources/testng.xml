@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="Autograder Suite">
-    <test name="All Tests">
-        <classes>
-            <class name="com.example.demo.DrugInteractionCheckerTest"/>
-        </classes>
+<suite name="Demo Test Suite">
+    <test name="Drug Interaction Tests">
+        <packages>
+            <package name="com.example.demo"/>
+        </packages>
     </test>
 </suite>
