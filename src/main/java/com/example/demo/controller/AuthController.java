@@ -1,64 +1,62 @@
-package com.example.demo.controller;
+package com.example.demo.util;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.util.JwtUtil;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.security.Key;
+import java.util.Date;
 
-@RestController
-@RequestMapping("/auth")
-public class AuthController {
+@Component
+public class JwtUtil {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private static final String SECRET =
+            "mysecretkeymysecretkeymysecretkeymysecretkey";
+    private static final long EXPIRATION = 1000 * 60 * 60 * 10; // 10 hrs
 
-    public AuthController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager,
-                          JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
+    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+
+    // ✅ REQUIRED BY TESTS
+    public String generateToken(String email, Long userId, String role) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("id", userId)
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    // ✅ REGISTER
-    @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public String extractUsername(String token) {
+        return getClaims(token).getSubject();
     }
 
-    // ✅ LOGIN (THIS FIXES 403)
-    @PostMapping("/login")
-    public Map<String, String> login(@RequestBody LoginRequest request) {
+    // ✅ REQUIRED BY TESTS
+    public Long extractUserId(String token) {
+        return getClaims(token).get("id", Long.class);
+    }
 
-        Authentication authentication =
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                request.getEmail(),
-                                request.getPassword()
-                        )
-                );
+    // ✅ REQUIRED BY TESTS
+    public String extractRole(String token) {
+        return getClaims(token).get("role", String.class);
+    }
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    // ✅ REQUIRED SIGNATURE
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
 
-        String token = jwtUtil.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        return Map.of("token", token);
+    private Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
