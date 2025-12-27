@@ -17,8 +17,8 @@ public class JwtUtil {
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    // ✅ REQUIRED BY TESTS
-    public String generateToken(Long userId, String email, String role) {
+    // ✅ REQUIRED ORDER BY TESTS
+    public String generateToken(String email, Long userId, String role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("id", userId)
@@ -33,12 +33,10 @@ public class JwtUtil {
         return getClaims(token).getSubject();
     }
 
-    // ✅ REQUIRED BY TESTS
     public Long extractUserId(String token) {
         return getClaims(token).get("id", Long.class);
     }
 
-    // ✅ REQUIRED BY TESTS
     public String extractRole(String token) {
         return getClaims(token).get("role", String.class);
     }
@@ -55,12 +53,8 @@ public class JwtUtil {
 
     // ✅ REQUIRED BY TESTS (OVERLOAD)
     public boolean validateToken(String token, UserDetails userDetails) {
-        try {
-            String username = extractUsername(token);
-            return username.equals(userDetails.getUsername()) && validateToken(token);
-        } catch (Exception e) {
-            return false;
-        }
+        return extractUsername(token).equals(userDetails.getUsername())
+                && validateToken(token);
     }
 
     private Claims getClaims(String token) {
