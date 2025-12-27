@@ -22,6 +22,13 @@ public class User {
     public User() {
     }
 
+    // ✅ ADD THIS CONSTRUCTOR (Fix 3)
+    public User(String name, String email, String role) {
+        this.name = name;
+        this.email = email;
+        this.role = role;
+    }
+
     public User(String name, String email, String password, String role) {
         this.name = name;
         this.email = email;
