@@ -13,21 +13,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
 
-    // ✅ REQUIRED BY AUTOGRADER (NO-ARG CONSTRUCTOR)
-    public UserServiceImpl() {
-        this.userRepository = null;
-        this.encoder = null;
-    }
-
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.encoder = encoder;
     }
 
-    // ✅ FIX 2 — REQUIRED METHOD
     @Override
-    public User register(User user) {
+    public User registerUser(User user) {
         if (user.getRole() == null) {
             user.setRole("USER");
         }
@@ -35,9 +28,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+    // ✅ FIX 5 — REQUIRED BY TESTS
     @Override
-    public User registerUser(User user) {
-        return register(user);
+    public User register(User user) {
+        return registerUser(user);
     }
 
     @Override
