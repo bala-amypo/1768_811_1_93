@@ -16,6 +16,7 @@ SELECT r FROM InteractionRule r
 WHERE r.ingredientA.id = :id OR r.ingredientB.id = :id
 """)
 List<InteractionRule> findByIngredientId(@Param("id") Long id);
+Optional<InteractionRule> findRuleBetweenIngredients(Long id1, Long id2);
 
    
 }
