@@ -1,9 +1,9 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.InteractionCheckResult;
+import com.example.demo.model.*;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.*;
 
-public interface InteractionCheckResultRepository
-        extends JpaRepository<InteractionCheckResult, Long> {
-    // standard CRUD only
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
 }
