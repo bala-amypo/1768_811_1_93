@@ -1,21 +1,11 @@
-package com.example.demo.service.impl;
+package com.example.demo.service;
 
-import com.example.demo.model.*;
-import com.example.demo.service.CatalogService;
-import org.springframework.stereotype.Service;
+import com.example.demo.model.ActiveIngredient;
+import com.example.demo.model.Medication;
 
-@Service
-public class CatalogServiceImpl implements CatalogService {
+public interface CatalogService {
 
-    public CatalogServiceImpl() {}
+    ActiveIngredient addIngredient(ActiveIngredient ingredient);
 
-    @Override
-    public ActiveIngredient addIngredient(ActiveIngredient ingredient) {
-        return ingredient;
-    }
-
-    @Override
-    public Medication addMedication(Medication medication) {
-        return medication;
-    }
+    Medication addMedication(Medication medication);
 }
