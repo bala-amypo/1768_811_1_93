@@ -6,6 +6,7 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.util.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,24 +41,26 @@ public class AuthController {
         return userRepository.save(user);
     }
 
-    // ✅ LOGIN (AUTOGRADER SAFE)
+    // ✅ LOGIN
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody LoginRequest request) {
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                request.getEmail(),
+                                request.getPassword()
+                        )
+                );
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // ✅ CORRECT PARAMETER ORDER
         String token = jwtUtil.generateToken(
-                user.getEmail(),
-                user.getId(),
-                user.getRole()
+                user.getId(),        // Long
+                user.getEmail(),     // String
+                user.getRole()       // String
         );
 
         return Map.of("token", token);
