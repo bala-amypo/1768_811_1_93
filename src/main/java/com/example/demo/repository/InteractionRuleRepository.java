@@ -11,7 +11,6 @@ import java.util.Optional;
 public interface InteractionRuleRepository
         extends JpaRepository<InteractionRule, Long> {
 
-    // ✔ FIXED: Explicit JPQL query
     @Query("""
         SELECT r FROM InteractionRule r
         WHERE (r.ingredientA.id = :id1 AND r.ingredientB.id = :id2)
@@ -22,7 +21,6 @@ public interface InteractionRuleRepository
             @Param("id2") Long id2
     );
 
-    // ✔ Needed by tests
     @Query("""
         SELECT r FROM InteractionRule r
         WHERE r.ingredientA.id = :id OR r.ingredientB.id = :id
