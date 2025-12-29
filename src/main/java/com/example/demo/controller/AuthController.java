@@ -1,5 +1,4 @@
 import com.example.demo.dto.LoginRequest;
-package com.example.demo.controller;
 
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.User;
